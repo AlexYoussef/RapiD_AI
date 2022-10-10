@@ -68,7 +68,7 @@ If there are still missing packages, you will have to install them manually usin
 - Scripts for pretraining `TabNet` and `DNN` models are  available [here](transfer_learning/) 
 - Data used in our work is not publically available. For access requests please refer to: https://oxfordbrc.nihr.ac.uk/research-themes-overview/antimicrobial-resistance-and-modernising-microbiology/infections-in-oxfordshire-research-database-iord/
 
-- To test the code, please navigate to `Demo` folder. We provided two dummy data files, `train_template_data.csv` and `test_template_data.csv` you can use them in the provided notebook `Testing model training from scratch on template data.ipynb`. 
+- To test the code, we provided template dataset (refer to `data` folder) and pretrained models on this data (`transfer_learning/pretrained_models`).  
 - Only training_from_scratch models were tested in the abovementioned notebook because the other training scenarios (pretraining & clustering) require access to the stored pretrained weights or access to patient data both of which cannot be shared publicaly due to patient privacy concerns.
 
 ## License
