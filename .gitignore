@@ -1,0 +1,10 @@
+.idea/
+*/__pycache__/
+*/.ipynb_checkpoints
+data/
+main/*.py
+outputs/
+transfer_learning/logging
+transfer_learning/pretrained_models
+transfer_learning/*.ipynb
+Visualization/
