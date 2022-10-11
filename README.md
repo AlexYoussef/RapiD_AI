@@ -69,7 +69,8 @@ If there are still missing packages, you will have to install them manually usin
 - Data used in our work is not publically available. For access requests please refer to: https://oxfordbrc.nihr.ac.uk/research-themes-overview/antimicrobial-resistance-and-modernising-microbiology/infections-in-oxfordshire-research-database-iord/
 
 - To test the code, we provided template dataset (refer to `data` folder) and pretrained models on this data (`transfer_learning/pretrained_models`).  
-- Only training_from_scratch models were tested in the abovementioned notebook because the other training scenarios (pretraining & clustering) require access to the stored pretrained weights or access to patient data both of which cannot be shared publicaly due to patient privacy concerns.
+- To run the code on the uploaded template data, pleas navigate to the `main` folder where you can find the three adopted scenarios: A, B and C.
+- For better understanding the whole process, please refer to the provided pseudocode [here](https://github.com/AlexYoussef/RapiD_AI/blob/main/RapiD_AI%20PSEUDOCODE.txt)
 
 ## License
 This project is covered under the [MIT License](https://github.com/AlexYoussef/RapiD_AI/blob/main/LICENSE).
