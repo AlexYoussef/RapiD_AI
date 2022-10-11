@@ -1,4 +1,4 @@
-# This psudocode explains how to the run the code on the 3 experiments discussid in our article:
+# This pseudocode explains how to the run the code on the 3 experiments discussed in our article:
 # we have three working scenarios: A- Domain Adaptation, B - Select the most relevent historic samples and C - Inductive Transfer
 # Adopted models: MLP (or DNN)- mulit-layer perceptron model, TabNet- a deep nn model from pytorch library supports tabular dataset
 # Ground truth model: XGBoost - a random forest ML state-of-art model for classification. Used to compare the adopted models results with.  
@@ -6,6 +6,7 @@
 #		DH2: historic data (from jan 2016 to Dec 2019) for pretraining models on scenario C.
 #		DW1 (or PREVENT): COVID 1st wave data (from Mar 2020 to July 2020) to finetune the pretrained models on both scenarios A and C.
 #		DW2 (or TEST): COVID 2nd wave data (from Aug 2020 to June 2021) to test the prediction performance of models in both scenarios A and C.
+# Results we got in each process are: the AUC metric to evaluate the models prediction performaces,  and best parameters for the models after training/finetuning 
 
 BEGIN:
 IF scenario == A:
