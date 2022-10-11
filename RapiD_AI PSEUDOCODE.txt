@@ -105,3 +105,4 @@ ELSE:
 			STEP 3.4: SAVE(finetuned_pretrained_model.results, '../outputs/EXP_3_MLP_IT_CI.csv') # save results to a csv file in the refered directory 
 		
 		
+END
