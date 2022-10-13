@@ -78,12 +78,7 @@ IF scenario == A:
 
 ELSE-IF scenario == B:
 
-		STEP 1: READ DH1 data 
-		STEP 2: Cluster the DH1 data into 128 clusters using k-mean-clustering algorithm. The clustering algorithm used is outlined in the appendix section of the paper
-		STEP 3: READ DW1 data samples as covid_data
-		STEP 4: Compute pairwise_distances(cluster_means,covid_data)
-		STEP 5: SELECT the relevant data samples from DH1 that are closed to DW1 (covid data) # Threshold = int(0.1*cluster_means.shape[0]). Multiple subsets of data can be chosen here (i.e., we can select the top 10% of most similar clusters, 20%, 30%, etc..)
-		STEP 6: SAVE the selected relevant data samples from STEP 5 as training data 
+		Please refer to Appendix E: Clustering algorithm in the paper.
 
 ELSE:
 	scenario = C
