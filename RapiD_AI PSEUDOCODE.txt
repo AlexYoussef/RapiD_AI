@@ -1,0 +1,102 @@
+# This pseudocode explains how to run the code on the three experiments discussed in our article:
+# we have three working scenarios: A- Domain Adaptation, B - Clustering, and C - Inductive Transfer
+# Adopted models: MLP (or DNN)- multi-layer perceptron model, TabNet- a deep nn model from PyTorch library supports tabular dataset
+# Ground truth model: XGBoost - a random forest ML state-of-art model for classification. Used to benchmark the performance of the adopted models.  
+# Adopted Data: DH1 (or ROME): historical data (from Jan 2016 to Dec 2019) for pretraining models on scenario A.
+#		DH2: historical data (from Jan 2016 to Dec 2019) for pretraining models on scenario C.
+#		DW1 (or PREVENT): COVID 1st wave data (from Mar 2020 to July 2020) to finetune the pretrained models for scenarios A and C.
+#		DW2 (or TEST): COVID 2nd wave data (from Aug 2020 to June 2021) to test models' performance in scenarios A and C.
+
+BEGIN:
+IF scenario == A:
+	IF model==MLP:
+
+		STEP 0: GOTO transfer_learning/scenarioA_MLP.py	
+			STEP 0.1: PRETRAIN(model, DH1) # pretrain the model on DH1 data (i.e., historic data for scenario A)
+			STEP 0.2: SAVE(model.best_weights, './pretrained/EXP_1_MLP.pkl') # save the best evaluated model weights from pretraining in transfer_learning/pretrained directory
+		STEP 1: GOTO main/scenario_A.ipynb
+		STEP 2: RUN DNN (From scratch)-grid search 
+			STEP 2.1: TRAIN_WITH_GRIDSEARCH(model, DW1) # Train model on DW1 data Using grid algorithm to estimate the best hyperparameters (h-params) of the model
+			STEP 2.2: TEST(model, DW2) # Test the trained model on DW2 data to evaluate prediction using the set of h-params
+			STEP 2.3: SAVE(model.best_h-params, '../outputs/EXP_1_MLP_GS.csv') # save results to a CSV file in the referred directory
+		STEP 3: RUN DNN (from scratch) - Confidence interval estimation (Use the best h-params found by a grid search to train the model with)
+			STEP 3.1: TRAIN_WTH_CI(model, DW1) # Train the model with the best h-params found from STEP 2 on DW1 data (i.e., PREVENT data)
+			STEP 3.2: TEST(model, DW2) # Test the trained model on DW2 data (i.e., TEST data)
+			STEP 3.3: SAVE(model.results, '../outputs/EXP_1_MLP_CI.csv') # save results to a CSV file in the referred directory
+		STEP 4: RUN DNN (domain adaptation) - Confidence interval estimation # here, we finetune the pretrained model from STEP 0 on the DW1 data 
+			STEP 4.1: LOAD(pretrained_model.weights) # load pretrained model weights from STEP 0
+			STEP 4.2: TRAIN_WITH_CI(pretrained_model, DW1) # Finetune the pretrained model on DW1 data 
+ 			STEP 4.3: TEST(finetuned_pretrained_model, DW2) # Test the finetuned pretrained model on DW2 data (i.e., TEST data)
+			STEP 4.4: SAVE(finetuned_pretrained_model.results, '../outputs/EXP_1_MLP_TL_CI.csv') # save results to a CSV file in the referred directory  
+		STEP 5: RUN DNN (domain adaptation) - Extended study period - Grid search # Here, we expand DW1 using data from DW2 (every added week to DW1 reduces DW2 by a week)
+			STEP 5.1: LOAD(pretrained_model.weights) # load pretrained model weights from STEP 0
+			STEP 5.2: TRAIN_WITH_GRIDSEARCH(pretrained_model, expanded-DW1) # Finetune the pretrained model from STEP 0 on expanded DW1 data
+											# using a grid search algorithm to estimate the best h-params for the pretrained model
+			STEP 5.3: TEST(finetuned_pretrained_model, shrunk-DW2) # Test the finetuned pretrained model on shrunk-DW2 data
+			STEP 5.4: SAVE(finetuned_pretrained_model.results, '../outputs/EXP_1_EXPANDED_{shrink_expand_weeks} weeks_MLP_TL_GS.csv') # save results to a CSV file in the referred directory 
+		STEP 6: RUN DNN (domain adaptation) - Extended study period - Confidence interval estimation # Here, we finetune the pretrained model on expanded DW1 data using the best h-params from STEP 5
+			STEP 6.1: LOAD(pretrained_model.weights) # load pretrained model weights from STEP 0
+			STEP 6.2: TRAIN_WITH_CI(pretrained_model, expanded-DW1) # Train the finetuned pretrained model with the best hyperparameters from STEP 5 on expanded DW1 data
+			STEP 6.3: TEST(finetuned_pretrained_model, shrunk-DW2) # Test the finetuned pretrained model on shrunk DW2 data
+			STEP 6.4: SAVE(finetuned_pretrained_model.results,'../outputs/EXP_1_EXPANDED_{shrink_expand_weeks} weeks_MLP_TL_CI.csv') # save results to a CSV file in the referred directory 
+	
+	ELSE-IF model==TabNet:
+
+		STEP 0: GOTO transfer_learning/scenarioA_TabNet.py
+			STEP 0.1: PRETRAIN(model, DH1) # pretrain the model on DH1 data (i.e., historic data for scenario A)
+			STEP 0.2: SAVE(model.best_weights, './pretrained/TabNet.zip') # save the best evaluated model weights from pretraining in transfer_learning/pretrained directory
+		STEP 1: GOTO main/scenario_A.ipynb
+		STEP 2: RUN TabNet (from scratch) - grid search # train the model from scratch on DW1 data using a grid search algorithm to estimate the best h-parameters for the model
+			STEP 2.1: TRAIN_WITH_GRIDSEARCH(model, DW1) # Train model on DW1 data Using grid algorithm to estimate the best hyperparameters (h-params) of the model
+			STEP 2.2: TEST(model, DW2) # Test the trained model on DW2 data to evaluate prediction using the set of h-params
+			STEP 2.3: SAVE(model.best_h-params, '../outputs/EXP_1_TABNET_GS.csv') # save results to a CSV file in the referred directory
+		STEP 3: RUN TabNet (from scratch) - Confidence interval estimation # train the model on DW1 data using the best h-params from STEP 2
+			STEP 3.1: TRAIN_WTH_CI(model, DW1) # Train the model with the best h-params found from STEP 2 on DW1 data (i.e., PREVENT data)
+			STEP 3.2: TEST(model, DW2) # Test the trained model on DW2 data (i.e., TEST data)
+			STEP 3.3: SAVE(model.results, '../outputs/EXP_1_TABNET_CI.csv') # save results to a CSV file in the referred directory
+		STEP 4: RUN TabNet (domain adaptation) - Confidence interval estimation # finetune pretrained model from STEP 0 on DW1 Data (i.e., PREVENT data)
+			STEP 4.1: LOAD(pretrained_model.weights) # load pretrained model weights from STEP 0
+			STEP 4.2: TRAIN_WITH_CI(pretrained_model, DW1) # Finetune the pretrained model on DW1 data 
+ 			STEP 4.3: TEST(finetuned_pretrained_model, DW2) # Test the finetuned pretrained model on DW2 data (i.e., TEST data)
+			STEP 4.4: SAVE(finetuned_pretrained_model.results, '../outputs/EXP_1_TABNET_TL_CI.csv') # save results to a CSV file in the referred directory  	
+	ELSE:
+		model = XGBoost
+		STEP 0: GOTO main/scenario_A.ipynb
+		STEP 1: RUN XGBoost - grid search # train the model on DW1 data using a grid search algorithm to estimate the best model h-params
+			STEP 1.1: TRAIN_WITH_GRIDSEARCH(model, DW1) # Train model on DW1 data Using grid algorithm to estimate the best hyperparameters (h-params) of the model
+			STEP 1.2: TEST(model, DW2) # Test the trained model on DW2 data to evaluate prediction using the set of h-params
+			STEP 1.3: SAVE(model.best_h-params, '../outputs/EXP_1_XGBOOST_GS.csv') # save results to a CSV file in the referred directory
+		STEP 2: RUN XGBoost - Confidence interval estimation # train the model on DW1 data using the best h-params from STEP 1
+			STEP 2.1: TRAIN_WTH_CI(model, DW1) # Train the model with the best h-params found from STEP 1 on DW1 data (i.e., PREVENT data)
+			STEP 2.2: TEST(model, DW2) # Test the trained model on DW2 data (i.e., TEST data)
+			STEP 2.3: SAVE(model.results, '../outputs/EXP_1_XGBOOST_CI.csv') # save results to a CSV file in the referred directory	
+		STEP 3: RUN XGBoost - Extended study period - Confidence interval estimation # train the model on expanded DW1 dataset (expanded by a week) and test on shrunk DW2 (shrunk by a week)
+			STEP 6.1: LOAD(trained_model.best_parameters) # load trained model best parameters from STEP 2
+			STEP 6.2: TRAIN_WITH_CI(trained_model, expanded-DW1) # Retrain Train the trained model on expanded DW1 data
+			STEP 6.3: TEST(retrained_model, shrunk-DW2) # Test the retrained model on shrunk DW2 data
+			STEP 6.4: SAVE(retrained_model.results,'../outputs/EXP_1_EXPANDED_{shrink_expand_weeks} weeks_XGBOOST_TL_CI.csv') # save results to a CSV file in the referred directory	
+
+ELSE-IF scenario == B:
+
+		Please refer to Appendix E: Clustering algorithm in the paper.
+
+ELSE:
+	scenario = C
+	model=MLP:
+
+		STEP 0: GOTO transfer_learning/scenario_C.py	
+			STEP 0.1: PRETRAIN(model, DH1) # pretrain the model on DH2 data (i.e., historic data for scenario C)
+			STEP 0.2: SAVE(model.best_weights, './pretrained/MLP_Scenario_C.pkl') # save the best evaluated model weights from pretraining in transfer_learning/pretrained directory
+		STEP 1: GOTO main/scenario_C.ipynb
+		STEP 2: RUN DNN (Inductive Transfer) - grid search # here, we finetune the pretrained model from STEP 0 on the DW1 data 
+			STEP 2.1: LOAD(pretrained_model.weights) # load pretrained model weights from STEP 0
+			STEP 2.2: TRAIN_WITH_GRIDSEARCH(pretrained_model, DW1) # Finetune the pretrained model on DW1 data using the grid search algorithm for estimating the best model h-params
+ 			STEP 2.3: TEST(finetuned_pretrained_model, DW2) # Test the finetuned pretrained model on DW2 data (i.e., TEST data)
+			STEP 2.4: SAVE(finetuned_pretrained_model.results, '../outputs/EXP_3_MLP_IT_GS.csv') # save results to a CSV file in the referred directory  
+		STEP 3: DNN (Inductive Transfer) - Confidence interval estimation # Here, we use the best h-params from STEP 2 to finetune the pretrained model on DW1 data
+			STEP 3.1: LOAD(pretrained_model.weights) # load pretrained model weights from STEP 0
+			STEP 3.2: TRAIN_WITH_CI(pretrained_model, DW1) # Finetune the pretrained model from STEP 0 on DW1 data
+			STEP 3.3: TEST(finetuned_pretrained_model, DW2) # Test the finetuned pretrained model on DW2 data
+			STEP 3.4: SAVE(finetuned_pretrained_model.results, '../outputs/EXP_3_MLP_IT_CI.csv') # save results to a CSV file in the referred directory 
+		
+		
